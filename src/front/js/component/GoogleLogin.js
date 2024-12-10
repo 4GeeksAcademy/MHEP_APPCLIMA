@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 
 // Estilos para el botón de Google
 const buttonStyle = {
   display: 'flex',
   alignItems: 'center',
-  backgroundColor: '#4285F4', // Color del logo de Google
+  backgroundColor: '#4285F4',
   color: '#fff',
   border: 'none',
   borderRadius: '4px',
@@ -26,32 +26,42 @@ const googleLogoStyle = {
 
 const Login = ({ onSignIn }) => {
   const supabase = useSupabaseClient();
+  const [isLoading, setIsLoading] = useState(false);
 
   async function googleSignIn() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        scopes: 'https://www.googleapis.com/auth/calendar',
-        redirectTo: 'https://studious-train-5gg6x775vpwjhppq5-3000.app.github.dev/auth/callback',
-      },
-    });
-    if (error) {
-      alert("Error logging in to Google provider with Supabase");
-      console.log(error);
-    } else {
-      onSignIn(); // Notify parent component of successful login
+    setIsLoading(true); // Inicia el indicador de carga
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          scopes: 'https://www.googleapis.com/auth/calendar',
+          redirectTo: 'https://studious-train-5gg6x775vpwjhppq5-3000.app.github.dev/auth/callback',
+        },
+      });
+
+      if (error) {
+        throw new Error("Error al iniciar sesión con Google: " + error.message);
+      }
+
+      // Llamar a la función de éxito proporcionada como prop
+      onSignIn();
+    } catch (error) {
+      alert(error.message || "Ocurrió un error inesperado durante el inicio de sesión.");
+      console.error(error);
+    } finally {
+      setIsLoading(false); // Detener el indicador de carga
     }
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <button style={buttonStyle} onClick={googleSignIn}>
+    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+      <button style={buttonStyle} onClick={googleSignIn} disabled={isLoading}>
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
           alt="Google logo"
           style={googleLogoStyle}
         />
-        Sign In with Google
+        {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión con Google'}
       </button>
     </div>
   );

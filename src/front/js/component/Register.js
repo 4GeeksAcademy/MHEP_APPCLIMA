@@ -13,6 +13,7 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
+  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -21,6 +22,33 @@ const Register = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    // Validaciones dinámicas
+    if (name === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      setErrors((prev) => ({
+        ...prev,
+        email: emailRegex.test(value) ? "" : "El correo no es válido.",
+      }));
+    }
+
+    if (name === "password") {
+      const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      setErrors((prev) => ({
+        ...prev,
+        password: passwordRegex.test(value)
+          ? ""
+          : "Debe tener al menos 8 caracteres, incluir una mayúscula, un número y un carácter especial.",
+      }));
+    }
+
+    if (name === "confirmPassword") {
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword:
+          value === formData.password ? "" : "Las contraseñas no coinciden.",
+      }));
+    }
   };
 
   const handleRegister = async (e) => {
@@ -28,51 +56,29 @@ const Register = () => {
 
     const { firstName, lastName, email, password, confirmPassword } = formData;
 
-    // Validaciones
-    if (!firstName || !lastName) {
+    // Validaciones finales antes de enviar
+    if (!firstName || !lastName || !email || !password || !confirmPassword) {
       Swal.fire({
         icon: "error",
-        title: "Error en el registro",
-        text: "El nombre y apellido son obligatorios.",
+        title: "Campos incompletos",
+        text: "Por favor, llena todos los campos antes de continuar.",
       });
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (errors.email || errors.password || errors.confirmPassword) {
       Swal.fire({
         icon: "error",
-        title: "Correo inválido",
-        text: "Por favor ingresa un correo electrónico válido.",
-      });
-      return;
-    }
-
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(password)) {
-      Swal.fire({
-        icon: "error",
-        title: "Contraseña inválida",
-        text: "La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, un número y un carácter especial.",
-      });
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Swal.fire({
-        icon: "error",
-        title: "Contraseñas no coinciden",
-        text: "Por favor, asegúrate de que ambas contraseñas sean iguales.",
+        title: "Errores de validación",
+        text: "Corrige los errores antes de registrarte.",
       });
       return;
     }
 
     try {
-      // Crear el usuario en Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Actualizar el perfil del usuario con nombre y apellido
       await updateProfile(user, {
         displayName: `${firstName} ${lastName}`,
       });
@@ -83,7 +89,6 @@ const Register = () => {
         text: "Tu cuenta ha sido creada correctamente.",
       });
 
-      // Redirigir al Login después del registro
       navigate("/");
     } catch (error) {
       Swal.fire({
@@ -95,47 +100,52 @@ const Register = () => {
     }
   };
 
-  const toggleShowPassword = () => {
-    setShowPassword((prev) => !prev);
-  };
-
-  const toggleShowConfirmPassword = () => {
-    setShowConfirmPassword((prev) => !prev);
-  };
+  const toggleShowPassword = () => setShowPassword((prev) => !prev);
+  const toggleShowConfirmPassword = () => setShowConfirmPassword((prev) => !prev);
 
   return (
     <div className="register-container">
-      <form onSubmit={handleRegister}>
+      <form onSubmit={handleRegister} className="register-form">
         <h2>🌦️ Registro de Usuario</h2>
 
-        <input
-          type="text"
-          name="firstName"
-          placeholder="Nombre"
-          value={formData.firstName}
-          onChange={handleChange}
-          required
-        />
+        <div className="input-wrapper">
+          <input
+            type="text"
+            name="firstName"
+            placeholder="Nombre"
+            value={formData.firstName}
+            onChange={handleChange}
+            required
+            className="form-input"
+          />
+        </div>
 
-        <input
-          type="text"
-          name="lastName"
-          placeholder="Apellido"
-          value={formData.lastName}
-          onChange={handleChange}
-          required
-        />
+        <div className="input-wrapper">
+          <input
+            type="text"
+            name="lastName"
+            placeholder="Apellido"
+            value={formData.lastName}
+            onChange={handleChange}
+            required
+            className="form-input"
+          />
+        </div>
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Correo Electrónico"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
+        <div className="input-wrapper">
+          <input
+            type="email"
+            name="email"
+            placeholder="Correo Electrónico"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="form-input"
+          />
+          {errors.email && <p className="error">{errors.email}</p>}
+        </div>
 
-        <div className="password-container">
+        <div className="input-wrapper input-with-icon">
           <input
             type={showPassword ? "text" : "password"}
             name="password"
@@ -143,18 +153,20 @@ const Register = () => {
             value={formData.password}
             onChange={handleChange}
             required
+            className="form-input"
           />
           <button
             type="button"
-            className="toggle-password"
+            className="toggle-password-btn"
             onClick={toggleShowPassword}
             aria-label="Mostrar u ocultar contraseña"
           >
             {showPassword ? "🙈" : "👁️"}
           </button>
+          {errors.password && <p className="error">{errors.password}</p>}
         </div>
 
-        <div className="password-container">
+        <div className="input-wrapper input-with-icon">
           <input
             type={showConfirmPassword ? "text" : "password"}
             name="confirmPassword"
@@ -162,18 +174,20 @@ const Register = () => {
             value={formData.confirmPassword}
             onChange={handleChange}
             required
+            className="form-input"
           />
           <button
             type="button"
-            className="toggle-password"
+            className="toggle-password-btn"
             onClick={toggleShowConfirmPassword}
             aria-label="Mostrar u ocultar confirmación de contraseña"
           >
             {showConfirmPassword ? "🙈" : "👁️"}
           </button>
+          {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
         </div>
 
-        <button type="submit">Registrarse</button>
+        <button type="submit" className="submit-btn">Registrarse</button>
       </form>
     </div>
   );

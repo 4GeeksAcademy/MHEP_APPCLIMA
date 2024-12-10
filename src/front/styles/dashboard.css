@@ -1,0 +1,75 @@
+/* Estilo base para el dashboard */
+.dashboard {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f0f4f8;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contenedor principal para las secciones del dashboard */
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 768px) {
+  .dashboard-content {
+      grid-template-columns: 1fr; /* Una columna para dispositivos móviles */
+  }
+}
+
+/* Títulos dentro del dashboard */
+.dashboard h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.8em;
+}
+
+/* Clima y calendario contenedores */
+.clima-container,
+.calendar-container {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+/* Título dentro de cada sección */
+.clima-container h2,
+.calendar-container h2 {
+  text-align: center;
+  font-size: 1.5em;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* Contenedor de días del clima */
+.weather-days {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Ajusta el tamaño de las tarjetas automáticamente */
+  gap: 20px;
+}
+
+/* Cada día del clima */
+.weather-day {
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.weather-day:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}

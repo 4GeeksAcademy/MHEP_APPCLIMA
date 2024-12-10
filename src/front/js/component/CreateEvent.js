@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Modal from 'react-modal';
+import Swal from 'sweetalert2';
 import "../../styles/EventCreation.css";
 
 const EventCreation = ({ session }) => {
@@ -10,49 +11,96 @@ const EventCreation = ({ session }) => {
   const [eventName, setEventName] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [events, setEvents] = useState({});
-  const [refetch, setRefetch] = useState(false)
+  const [refetch, setRefetch] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch events on mount and whenever the provider_token changes
   useEffect(() => {
     async function fetchEvents() {
       try {
+        if (!session?.provider_token) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Token no disponible',
+            text: 'Por favor, inicia sesión para cargar los eventos.',
+          });
+          return;
+        }
+
         const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${session.provider_token}`, // Assuming the token is available in session
+            'Authorization': `Bearer ${session.provider_token}`,
           },
         });
-        if (!res.ok) throw new Error('Failed to fetch events from Google Calendar');
-        
+
+        if (!res.ok) throw new Error(`Error al obtener eventos: ${res.statusText}`);
+
         const data = await res.json();
-        
-        // Organize events by date
+
         const eventsByDate = data.items.reduce((acc, event) => {
-          const eventDate = event.start.date || event.start.dateTime.split('T')[0]; // Extract date if dateTime is present
+          const eventDate = event.start.date || event.start.dateTime.split('T')[0];
           if (!acc[eventDate]) acc[eventDate] = [];
           acc[eventDate].push({
             name: event.summary,
-            description: event.description || 'No description',
+            description: event.description || 'Sin descripción',
           });
           return acc;
         }, {});
-        
+
         setEvents(eventsByDate);
       } catch (error) {
-        console.error("Error fetching calendar events:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al obtener eventos',
+          text: 'Hubo un error al cargar los eventos. Intenta nuevamente.',
+        });
       }
     }
-  
-    if (session?.provider_token) {
-      fetchEvents(); // Fetch events when the token is available
-    }
-  }, [session?.provider_token, refetch]); // Only run if provider_token changes or is available
 
-  // Handle event creation and force fetch after successful creation
+    fetchEvents();
+  }, [session?.provider_token, refetch]);
+
+  const validateEventFields = () => {
+    if (!eventName.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Nombre requerido',
+        text: 'El nombre del evento es obligatorio.',
+      });
+      return false;
+    }
+    if (!eventDescription.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Descripción requerida',
+        text: 'La descripción del evento es obligatoria.',
+      });
+      return false;
+    }
+    if (start >= end) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Fechas incorrectas',
+        text: 'La fecha de inicio debe ser anterior a la fecha de fin.',
+      });
+      return false;
+    }
+    return true;
+  };
+
   async function createCalendarEvent() {
-    console.log("Creating calendar event");
+    if (!session?.provider_token) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Token no disponible',
+        text: 'Por favor, inicia sesión nuevamente.',
+      });
+      return;
+    }
+
+    if (!validateEventFields()) return;
+
     const event = {
       'summary': eventName,
       'description': eventDescription,
@@ -65,33 +113,45 @@ const EventCreation = ({ session }) => {
         'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
     };
-    
+
     try {
       const response = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
         method: "POST",
         headers: {
-          'Authorization': 'Bearer ' + session.provider_token,
+          'Authorization': `Bearer ${session.provider_token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(event),
       });
-      
-      const data = await response.json();
-      console.log("Event created:", data);
 
-       setRefetch((prev)=> !prev)
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Error al crear el evento: ${errorData.error.message}`);
+      }
+
+      const data = await response.json();
+      Swal.fire({
+        icon: 'success',
+        title: 'Evento creado',
+        text: 'El evento fue creado exitosamente.',
+      });
+
+      setRefetch((prev) => !prev);
     } catch (error) {
-      console.error("Error creating event:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al crear evento',
+        text: error.message,
+      });
     } finally {
-      setIsModalOpen(false); // Close modal after event creation
+      setIsModalOpen(false);
     }
   }
 
-  // Render the calendar grid
   const renderCalendarGrid = () => {
     const daysInMonth = new Date(start.getFullYear(), start.getMonth() + 1, 0).getDate();
     const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    
+
     return (
       <div className="calendar-grid">
         {daysArray.map(day => {
@@ -103,8 +163,11 @@ const EventCreation = ({ session }) => {
               key={day}
               className="calendar-day"
               onClick={() => {
+                const clickedDate = new Date(start.getFullYear(), start.getMonth(), day);
                 setSelectedDate(dayStr);
-                setIsModalOpen(true); // Open modal when a day is clicked
+                setStart(clickedDate);
+                setEnd(new Date(clickedDate.getTime() + 3600000));
+                setIsModalOpen(true);
               }}
             >
               <span>{day}</span>
@@ -139,44 +202,40 @@ const EventCreation = ({ session }) => {
 
   return (
     <div className="container">
-      <h2>Hey there {session.user.email}</h2>
-
-      {/* Calendar View */}
+      <h2>Hola {session.user.email}</h2>
       <div>
         <h3>{start.toLocaleString('default', { month: 'long' })} {start.getFullYear()}</h3>
         {renderCalendarGrid()}
       </div>
-
-      {/* Modal for Event Form */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={() => setIsModalOpen(false)}
-        contentLabel="Create Event"
+        contentLabel="Crear Evento"
         customStyles={customStyles}
         overlayClassName="overlay"
         ariaHideApp={false}
       >
-        <h3>Create Event for {selectedDate}</h3>
+        <h3>Crear Evento para {selectedDate}</h3>
         <div>
-          <label>Start of your event</label>
+          <label>Inicio del evento</label>
           <DatePicker onChange={setStart} selected={start} showTimeSelect />
         </div>
         <div>
-          <label>End of your event</label>
+          <label>Fin del evento</label>
           <DatePicker onChange={setEnd} selected={end} showTimeSelect />
         </div>
         <div>
-          <label>Event name</label>
+          <label>Nombre del evento</label>
           <input type="text" value={eventName} onChange={(e) => setEventName(e.target.value)} />
         </div>
         <div>
-          <label>Event description</label>
+          <label>Descripción del evento</label>
           <input type="text" value={eventDescription} onChange={(e) => setEventDescription(e.target.value)} />
         </div>
         <hr />
         <div className="modal-actions">
-          <button type='button' onClick={createCalendarEvent}>Create Calendar Event</button>
-          <button className='secondary' type='button' onClick={() => setIsModalOpen(false)}>Cancel</button>
+          <button type='button' onClick={createCalendarEvent}>Crear Evento</button>
+          <button className='secondary' type='button' onClick={() => setIsModalOpen(false)}>Cancelar</button>
         </div>
       </Modal>
     </div>

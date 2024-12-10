@@ -2,7 +2,6 @@
 import React,{ useState } from 'react';
 import { useSession, useSupabaseClient, useSessionContext } from '@supabase/auth-helpers-react';
 import "react-datepicker/dist/react-datepicker.css";
-
 import Login from '../component/GoogleLogin';
 import Weather from '../component/Clima';
 import Navbar from '../component/navbar';

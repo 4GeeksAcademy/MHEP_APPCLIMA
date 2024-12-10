@@ -1,0 +1,102 @@
+/* Contenedor principal */
+.clima-container {
+    padding: 20px;
+    background: linear-gradient(to bottom, #b3d9ff, #e6f2ff);
+    border-radius: 10px;
+    max-width: 1200px;
+    margin: 20px auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;
+}
+
+/* Título principal */
+.clima-title {
+    font-size: 1.8em;
+    color: #003366;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+/* Dropdown de selección de país */
+.country-dropdown {
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #99ccff;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenedor en formato grid */
+.weather-days {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    justify-items: center;
+    align-items: start;
+}
+
+/* Cada día del clima */
+.weather-day {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    width: 100%;
+    max-width: 200px;
+}
+
+.weather-day:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Día de la semana */
+.weather-day .day {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #003366;
+    margin-bottom: 10px;
+}
+
+/* Temperatura */
+.weather-day .temp {
+    font-size: 1.5em;
+    color: #ff6600;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* Descripción */
+.weather-day .description {
+    font-size: 1em;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+/* Iconos */
+.weather-day .icons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.weather-day .icon {
+    font-size: 1.5em;
+}
+
+.weather-day .icon.cloudy {
+    color: gray;
+}
+
+.weather-day .icon.sunny {
+    color: yellow;
+}
+
+.weather-day .icon.windy {
+    color: blue;
+}

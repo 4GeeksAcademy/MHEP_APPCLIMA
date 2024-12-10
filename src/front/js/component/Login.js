@@ -90,7 +90,7 @@ const errorMessage = (error) => {
   return (
     <div className="container">
       <div className="form-container">
-        <h2>🌦️ App de Clima</h2>
+        <h2>🌦️ WeatherPRO </h2>
         <h3>Iniciar Sesión</h3>
 
         <form onSubmit={handleLogin}>

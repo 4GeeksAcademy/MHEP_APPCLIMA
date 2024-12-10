@@ -13,10 +13,17 @@ const countryCodes = {
   
  
   export const getCountryName = (countryCode) => {
+    if (!countryCode) {
+      console.error("Código de país no definido");
+      return "Desconocido";
+    }
+  
     const countryName = countryCodes[countryCode.toUpperCase()];
     if (!countryName) {
-      throw new Error(`Código de país "${countryCode}" no encontrado`);
+      console.error(`Código de país "${countryCode}" no encontrado`);
+      return "Desconocido";
     }
   
     return countryName;
   };
+  
