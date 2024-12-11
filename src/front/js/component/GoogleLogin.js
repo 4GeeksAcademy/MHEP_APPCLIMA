@@ -35,7 +35,7 @@ const Login = ({ onSignIn }) => {
         provider: 'google',
         options: {
           scopes: 'https://www.googleapis.com/auth/calendar',
-          redirectTo: 'https://studious-train-5gg6x775vpwjhppq5-3000.app.github.dev/auth/callback',
+          redirectTo: 'https://fluffy-journey-vgvrqw54x6pcx775-3000.app.github.dev/auth/callback',
         },
       });
 
