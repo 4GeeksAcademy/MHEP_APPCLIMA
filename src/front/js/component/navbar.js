@@ -1,19 +1,33 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Logout from './GoogleLogout';
+import { useNavigate } from 'react-router-dom';
+import "../../styles/navbar.css";
+const Navbar = () => {
+  const navigate = useNavigate();
 
-export const Navbar = () => {
-	return (
-		<nav className="navbar navbar-light bg-light">
-			<div className="container">
-				<Link to="/">
-					<span className="navbar-brand mb-0 h1">React Boilerplate</span>
-				</Link>
-				<div className="ml-auto">
-					<Link to="/demo">
-						<button className="btn btn-primary">Check the Context in action</button>
-					</Link>
-				</div>
-			</div>
-		</nav>
-	);
+  function handleSignOut() {
+    console.log("User signed out");
+    navigate('/');
+  }
+
+  return (
+    <nav className="navbar">
+      <div className="navbar-container">
+        {/* Logo o título de la aplicación */}
+        <Link to="/" className="navbar-brand">
+          🌦️ <span className="navbar-title">WeatherPRO</span>
+        </Link>
+
+        {/* Botón Cerrar Sesión a la derecha */}
+        <div>
+          <Logout onSignOut={handleSignOut}>
+            <button className="btn-logout">Sign Out</button>
+          </Logout>
+        </div>
+      </div>
+    </nav>
+  );
 };
+
+export default Navbar;
