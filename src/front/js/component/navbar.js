@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Logout from './GoogleLogout';
 import { useNavigate } from 'react-router-dom';
-
+import "../../styles/navbar.css";
 const Navbar = () => {
   const navigate = useNavigate();
 
