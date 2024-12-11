@@ -53,15 +53,15 @@ const Login = () => {
       token: response.credential,
       email: email,
       name: name,
+    };
+
+    localStorage.setItem('userCredentials', JSON.stringify(userData));
+
+    navigate('/dashboard');
   };
-
-  localStorage.setItem('userCredentials', JSON.stringify(userData));
-
-  navigate('/dashboard');
-};
-const errorMessage = (error) => {
+  const errorMessage = (error) => {
     console.log(error);
-};
+  };
 
   // Inicio de sesión con correo y contraseña
   const handelSignIn = () => {
