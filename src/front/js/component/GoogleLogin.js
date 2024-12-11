@@ -35,7 +35,7 @@ const Login = ({ onSignIn }) => {
         provider: 'google',
         options: {
           scopes: 'https://www.googleapis.com/auth/calendar',
-          redirectTo: 'https://studious-train-5gg6x775vpwjhppq5-3000.app.github.dev/auth/callback',
+          redirectTo: 'https://ideal-winner-977vjggw6gx5h7jq5-3000.app.github.dev/auth/callback',
         },
       });
 

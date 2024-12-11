@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import GoogleLogin from './GoogleLogin'
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import Swal from "sweetalert2";
 import "../../styles/form.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
@@ -34,51 +38,79 @@ const Login = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      console.log("Usuario logueado con Google:", user);
-      navigate("/dashboard");
+      // Obtener el token de Firebase
+      const token = await user.getIdToken();
+
+      // Crear el payload para enviar al backend
+      const payload = {
+        uid: user.uid.slice(0, 256), // Truncar a 256 caracteres
+        email: user.email.slice(0, 120), // Truncar a 120 caracteres
+        emailVerified: user.emailVerified || false,
+        password: "default_password",
+        isActive: true,
+        displayName: user.displayName.slice(0, 255), // Truncar a 255 caracteres
+        accessToken: token.slice(0, 1000), // Ajustar si el token es largo
+      };
+
+      // Enviar datos al backend
+      const response = await fetch(
+        "https://ideal-winner-977vjggw6gx5h7jq5-3001.app.github.dev/api/users",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        Swal.fire({
+          icon: "success",
+          title: "Usuario guardado exitosamente",
+          text: `Bienvenido, ${data.user.displayName}`,
+        });
+        navigate("/dashboard");
+      } else {
+        const error = await response.json();
+        Swal.fire({
+          icon: "error",
+          title: "Error al guardar el usuario",
+          text: error.message || "Hubo un problema al guardar el usuario.",
+        });
+      }
     } catch (error) {
-      console.error("Error en el inicio de sesión con Google:", error);
-      alert("Error al iniciar sesión con Google. Por favor, intenta nuevamente.");
+      Swal.fire({
+        icon: "error",
+        title: "Error en el inicio de sesión",
+        text: "Error al iniciar sesión con Google. Por favor, intenta nuevamente.",
+      });
     }
   };
 
-  const responseMessage = (response) => {
-
-    const decodedToken = jwtDecode(response.credential);
-
-    const email = decodedToken.email;
-    const name = decodedToken.name;
-
-    const userData = {
-      token: response.credential,
-      email: email,
-      name: name,
-    };
-
-    localStorage.setItem('userCredentials', JSON.stringify(userData));
-
-    navigate('/dashboard');
-  };
-  const errorMessage = (error) => {
-    console.log(error);
-  };
-
   // Inicio de sesión con correo y contraseña
-  const handelSignIn = () => {
-    console.log('Sing In ')
-  }
   const handleLogin = async (e) => {
     e.preventDefault();
-
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
-
-      console.log("Usuario logueado con correo:", user);
+      Swal.fire({
+        icon: "success",
+        title: "Inicio de sesión exitoso",
+        text: `Bienvenido, ${user.email}`,
+      });
       navigate("/dashboard");
     } catch (error) {
-      console.error("Error en el inicio de sesión con correo:", error);
-      alert("Usuario o contraseña incorrectos. Por favor, intenta nuevamente.");
+      Swal.fire({
+        icon: "error",
+        title: "Error en el inicio de sesión",
+        text: "Usuario o contraseña incorrectos. Por favor, intenta nuevamente.",
+      });
     }
   };
 
@@ -116,13 +148,15 @@ const Login = () => {
           Login con Google
         </div>
 
-        <button onClick={handleRegisterRedirect} style={{ backgroundColor: "#28a745" }}>
+        <button
+          onClick={handleRegisterRedirect}
+          style={{ backgroundColor: "#28a745" }}
+        >
           Registrarse
         </button>
       </div>
     </div>
   );
 };
-
 
 export default Login;
