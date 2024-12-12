@@ -10,7 +10,8 @@ from api.models import db
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
-
+from api.models import db, User
+import psycopg2
 # from models import Person
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
@@ -43,27 +44,79 @@ app.register_blueprint(api, url_prefix='/api')
 # Handle/serialize errors like a JSON object
 
 
-@app.errorhandler(APIException)
-def handle_invalid_usage(error):
-    return jsonify(error.to_dict()), error.status_code
+# @app.errorhandler(APIException)
+# def handle_invalid_usage(error):
+#     return jsonify(error.to_dict()), error.status_code
 
-# generate sitemap with all your endpoints
+# # generate sitemap with all your endpoints
 
 
-@app.route('/')
-def sitemap():
-    if ENV == "development":
-        return generate_sitemap(app)
-    return send_from_directory(static_file_dir, 'index.html')
+# @app.route('/')
+# def sitemap():
+#     if ENV == "development":
+#         return generate_sitemap(app)
+#     return send_from_directory(static_file_dir, 'index.html')
+
+@app.route('/api/users', methods=['GET', 'POST', 'OPTIONS'])
+def manage_users():
+    if request.method == 'OPTIONS':
+        # Responder a preflight requests
+        response = jsonify({"message": "Preflight request received"})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+        print("entro")
+        return response, 200
+
+    if request.method == 'GET':
+        # Obtener todos los usuarios
+        users = User.query.all()
+        return jsonify([user.serialize() for user in users]), 200
+
+    if request.method == 'POST':
+        data = request.get_json()
+
+        # Validar campos obligatorios
+        required_fields = ['uid', 'email', 'emailVerified', 'password', 'isActive', 'displayName', 'accessToken']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"El campo '{field}' es obligatorio."}), 400
+
+        # Validación de datos desde Firebase
+        try:
+            user = User(
+                uid=data['uid'][:256],
+                email=data['email'][:120],
+                email_verified=data['emailVerified'],
+                password=data['password'],
+                is_active=data['isActive'],
+                display_name=data['displayName'][:255],
+                access_token=data['accessToken'][:1000]
+            )
+            db.session.add(user)
+            db.session.commit()
+            response=jsonify({"message": "Usuario creado exitosamente", "user": user.serialize()})
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+            response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+            return response, 201
+        except psycopg2.errors.StringDataRightTruncation as e:
+            db.session.rollback()
+            return jsonify({"error": "Datos demasiado largos para algunos campos", "details": str(e)}), 400
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": "Error al crear el usuario", "details": str(e)}), 500
+        
+       
 
 # any other endpoint will try to serve it like a static file
-@app.route('/<path:path>', methods=['GET'])
-def serve_any_other_file(path):
-    if not os.path.isfile(os.path.join(static_file_dir, path)):
-        path = 'index.html'
-    response = send_from_directory(static_file_dir, path)
-    response.cache_control.max_age = 0  # avoid cache memory
-    return response
+# @app.route('/<path:path>', methods=['GET'])
+# def serve_any_other_file(path):
+#     if not os.path.isfile(os.path.join(static_file_dir, path)):
+#         path = 'index.html'
+#     response = send_from_directory(static_file_dir, path)
+#     response.cache_control.max_age = 0  # avoid cache memory
+#     return response
 
 
 # this only runs if `$ python src/main.py` is executed

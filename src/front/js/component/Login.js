@@ -49,12 +49,12 @@ const Login = () => {
         password: "default_password",
         isActive: true,
         displayName: user.displayName.slice(0, 255), // Truncar a 255 caracteres
-        accessToken: token.slice(0, 1000), // Ajustar si el token es largo
+        accessToken: token, // Ajustar si el token es largo
       };
 
       // Enviar datos al backend
       const response = await fetch(
-        "https://ideal-winner-977vjggw6gx5h7jq5-3001.app.github.dev/api/users",
+        "https://literate-adventure-v664qjjwp5xx3xv75-3001.app.github.dev/api/users",
         {
           method: "POST",
           headers: {
