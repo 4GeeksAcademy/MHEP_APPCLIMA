@@ -88,10 +88,13 @@ const Login = () => {
   };
 
   return (
-    <div className="container">
-      <div className="form-container">
-        <h2>🌦️ WeatherPRO </h2>
-        <h3>Iniciar Sesión</h3>
+    <div className="container-fluid">
+      <div className="row justify-content-center">
+        <div className="col-lg-4 col-md-6 col-sm-8 col-xs-12"></div>
+          <div className="fondo">
+            <div className="form-container">
+              <h2>🌦️ WeatherPRO </h2>
+              <h3>Iniciar Sesión</h3>
 
         <form onSubmit={handleLogin}>
           <input
@@ -116,11 +119,14 @@ const Login = () => {
           Login con Google
         </div>
 
-        <button onClick={handleRegisterRedirect} style={{ backgroundColor: "#28a745" }}>
+          <button onClick={handleRegisterRedirect} style={{ backgroundColor: "#28a745" }}>
           Registrarse
-        </button>
+          </button>
+        </div>
       </div>
     </div>
+  </div>
+  
   );
 };
 

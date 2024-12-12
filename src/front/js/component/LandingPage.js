@@ -12,7 +12,7 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-500 to-indigo-600 text-white">
-      <div className="container mx-auto px-4 py-16 flex flex-col lg:flex-row items-center justify-between">
+      <div className="fondo mx-auto px-4 py-16 flex flex-col lg:flex-row items-center justify-between">
         {/* Left Content Section */}
         <div className="lg:w-1/2 text-center lg:text-left mb-12 lg:mb-0">
           <h1 className="text-5xl font-bold mb-6 leading-tight">
@@ -59,13 +59,9 @@ const LandingPage = () => {
         </div>
 
         {/* Right Image/Mockup Section */}
-        <div className="lg:w-1/2 flex justify-center">
-          <div className="relative">
-            
-              
-             <h2>🌦️ WeatherPro App Interface</h2>
-             
-            
+        <div className="lg:w-1/2 flex justify-center lg:justify-end">
+          <div className="relative lg:mt-0 mt-12">
+            <h2 className="max-w-md text-center mx-auto">🌦️ WeatherPro App Interface</h2>
             <div className="absolute bottom-4 left-4 right-4 bg-white/90 rounded-xl px-4 py-3 text-sky-600 text-center">
               <p className="font-bold mb-2">Próxima Actividad</p>
               <div className="flex justify-between items-center">

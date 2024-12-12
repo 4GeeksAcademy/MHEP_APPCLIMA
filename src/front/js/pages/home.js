@@ -3,17 +3,29 @@ import Login from '../component/Login';
 import Clima from '../component/Clima';
 import Formulario from '../component/Formulario';
 import Footer from '../component/Footer';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Container, Row, Col } from 'react-bootstrap';
 
 const Home = () => {
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh' }}>
-        <Login />
-        <Clima />
-        <Formulario />
-      </div>
+    <Container fluid>
+      <Row className="justify-content-center">
+        <Col xs={12} md={8} lg={6} xl={4}>
+          <Login />
+        </Col>
+      </Row>
+      <Row className="justify-content-center">
+        <Col xs={12} md={8} lg={6} xl={4}>
+          <Clima />
+        </Col>
+      </Row>
+      <Row className="justify-content-center">
+        <Col xs={12} md={8} lg={6} xl={4}>
+          <Formulario />
+        </Col>
+      </Row>
       <Footer />
-    </div>
+    </Container>
   );
 };
 
