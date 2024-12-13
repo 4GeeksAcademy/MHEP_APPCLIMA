@@ -35,7 +35,7 @@ const Login = ({ onSignIn }) => {
         provider: 'google',
         options: {
           scopes: 'https://www.googleapis.com/auth/calendar',
-          redirectTo: 'https://literate-adventure-v664qjjwp5xx3xv75-3000.app.github.dev/auth/callback',
+          redirectTo: 'https://solid-disco-4j6ww4w65qv25wx-3000.app.github.dev/auth/callback',
         },
       });
 

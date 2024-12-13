@@ -8,7 +8,7 @@ class User(db.Model):
     uid = db.Column(db.String(256), unique=True, nullable=True)  # ID único proporcionado por Firebase
     email = db.Column(db.String(120), unique=True, nullable=False)  # Correo electrónico único
     email_verified = db.Column(db.Boolean, nullable=False)  # Booleano para verificar el email
-    password = db.Column(db.String(80), unique=False, nullable=False)  # Contraseña del usuario
+    password = db.Column(db.String(300), unique=False, nullable=False)  # Contraseña del usuario
     is_active = db.Column(db.Boolean, unique=False, nullable=False)  # Estado del usuario
     display_name = db.Column(db.String(120), nullable=False)  # Nombre a mostrar
     access_token = db.Column(db.Text, nullable=False)  # Token de acceso proporcionado

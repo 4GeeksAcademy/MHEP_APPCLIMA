@@ -46,32 +46,40 @@ const Login = () => {
         uid: user.uid.slice(0, 256), // Truncar a 256 caracteres
         email: user.email.slice(0, 120), // Truncar a 120 caracteres
         emailVerified: user.emailVerified || false,
-        password: "default_password",
+        password: "default_password", // Contraseña predeterminada
         isActive: true,
         displayName: user.displayName.slice(0, 255), // Truncar a 255 caracteres
-        accessToken: token, // Ajustar si el token es largo
+        accessToken: token,
       };
 
       // Enviar datos al backend
-      const response = await fetch(
-        "https://literate-adventure-v664qjjwp5xx3xv75-3001.app.github.dev/api/users",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch("https://solid-disco-4j6ww4w65qv25wx-3001.app.github.dev/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (response.ok) {
         const data = await response.json();
-        Swal.fire({
-          icon: "success",
-          title: "Usuario guardado exitosamente",
-          text: `Bienvenido, ${data.user.displayName}`,
-        });
-        navigate("/dashboard");
+
+        // Si la contraseña es predeterminada, redirigir a crear contraseña
+        if (data.user.password === "default_password") {
+          Swal.fire({
+            icon: "info",
+            title: "Crea una contraseña",
+            text: "Redirigiéndote para configurar tu contraseña personalizada.",
+          });
+          navigate("/create-password", { state: { token: data.token } }); // Pasar el token al estado de la página
+        } else {
+          Swal.fire({
+            icon: "success",
+            title: "Inicio de sesión exitoso",
+            text: `Bienvenido, ${data.user.displayName}`,
+          });
+          navigate("/dashboard");
+        }
       } else {
         const error = await response.json();
         Swal.fire({

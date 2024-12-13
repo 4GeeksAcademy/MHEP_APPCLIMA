@@ -5,20 +5,29 @@ import os
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
+from flask_cors import CORS
 from api.utils import APIException, generate_sitemap
 from api.models import db
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from api.models import db, User
+from datetime import datetime, timedelta
 import psycopg2
+import bcrypt
+import jwt
 # from models import Person
+
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "super_secret_key")
+TOKEN_EXPIRATION_TIME = 30  # Minutos
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../public/')
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+
+
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
@@ -51,11 +60,11 @@ app.register_blueprint(api, url_prefix='/api')
 # # generate sitemap with all your endpoints
 
 
-# @app.route('/')
-# def sitemap():
-#     if ENV == "development":
-#         return generate_sitemap(app)
-#     return send_from_directory(static_file_dir, 'index.html')
+@app.route('/')
+def sitemap():
+    if ENV == "development":
+        return generate_sitemap(app)
+    return send_from_directory(static_file_dir, 'index.html')
 
 @app.route('/api/users', methods=['GET', 'POST', 'OPTIONS'])
 def manage_users():
@@ -106,6 +115,34 @@ def manage_users():
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": "Error al crear el usuario", "details": str(e)}), 500
+
+@app.route('/api/create-password', methods=['POST', 'OPTIONS'])
+def create_password():
+    if request.method == 'OPTIONS':
+        response = jsonify({"message": "Preflight request received"})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "POST,OPTIONS")
+        return response, 200
+
+    try:
+        token = request.headers.get("Authorization")
+        print("Token recibido:", token)  # Depuración
+
+        if not token:
+            return jsonify({"error": "Token no proporcionado"}), 401
+
+        # Decodificar el token
+        decoded_token = jwt.decode(token.split("Bearer ")[1], SECRET_KEY, algorithms=["HS256"])
+        user_id = decoded_token.get("user_id")
+        print("Token decodificado:", decoded_token)  # Depuración
+
+        # Resto de la lógica...
+    except Exception as e:
+        print(f"Error en el endpoint: {e}")
+        return jsonify({"error": "Error en el servidor", "details": str(e)}), 500
+
+
         
        
 
