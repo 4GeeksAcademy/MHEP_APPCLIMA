@@ -35,7 +35,7 @@ const Login = ({ onSignIn }) => {
         provider: 'google',
         options: {
           scopes: 'https://www.googleapis.com/auth/calendar',
-          redirectTo: 'https://miniature-space-bassoon-q77rp556vxvq2x464-3000.app.github.dev/auth/callback',
+          redirectTo: 'https://psychic-palm-tree-g4497vv6xwpp2vv5r-3000.app.github.dev/auth/callback',
         },
       });
 

@@ -1,6 +1,7 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+import json
 import os
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
@@ -18,6 +19,8 @@ import bcrypt
 import jwt
 from google.oauth2 import id_token
 from google.auth.transport import requests
+import base64
+
 # from models import Person
 
 CLIENT_ID="app-de-clima-cd5ef"
@@ -119,12 +122,11 @@ def manage_users():
 
 @app.route('/api/create-password', methods=['POST', 'OPTIONS'])
 def create_password():
-    response = jsonify({"message": "Preflight request received"})
+    response = jsonify()
     response.headers.add("Access-Control-Allow-Origin", "*")
     response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
     response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
     if request.method == 'OPTIONS':
-        
         return response, 200
 
     try:
@@ -134,14 +136,18 @@ def create_password():
         if not token:
             return jsonify({"error": "Token no proporcionado"}), 401
 
+        header, payload, _ = token.split(".")
+        payload = json.loads(base64.b64decode(payload+"="))
         # Decodificar el token
-        idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
-        print(str(idinfo))
+        # idinfo = auth.verify_id_token(token)
+        # print(str(idinfo))
         # Resto de la lógica...
+        body = request.get_json()
         db.session.query(User).\
-        filter(User.uid == idinfo["user_id"]).\
-        update({'password': request.get_json()["new_password"]})
+        filter(User.uid == payload["user_id"]).\
+        update({'password': body["new_password"]})
         db.session.commit()
+        return response, 200
 
     except Exception as e:
         print(f"Error en el endpoint: {e}")
@@ -165,7 +171,7 @@ def create_password():
 #     return response
 
 
-# this only runs if `$ python src/main.py` is executed
-if __name__ == '__main__':
+# this only runs if $ python src/main.py is executed
+if __name__ == '_main_':
     PORT = int(os.environ.get('PORT', 3001))
-    app.run(host='0.0.0.0', port=PORT, debug=True)
+    app.run(host='0.0.0.0', port=PORT,debug=True)
