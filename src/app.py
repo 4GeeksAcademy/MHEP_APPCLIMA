@@ -16,10 +16,11 @@ from datetime import datetime, timedelta
 import psycopg2
 import bcrypt
 import jwt
+from google.oauth2 import id_token
+from google.auth.transport import requests
 # from models import Person
 
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "super_secret_key")
-TOKEN_EXPIRATION_TIME = 30  # Minutos
+CLIENT_ID="app-de-clima-cd5ef"
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
@@ -118,29 +119,37 @@ def manage_users():
 
 @app.route('/api/create-password', methods=['POST', 'OPTIONS'])
 def create_password():
+    response = jsonify({"message": "Preflight request received"})
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+    response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
     if request.method == 'OPTIONS':
-        response = jsonify({"message": "Preflight request received"})
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
-        response.headers.add("Access-Control-Allow-Methods", "POST,OPTIONS")
+        
         return response, 200
 
     try:
-        token = request.headers.get("Authorization")
-        print("Token recibido:", token)  # Depuración
+        bearer,token = request.headers.get("Authorization").split()
+        print("/" + token + "/")  # Depuración
 
         if not token:
             return jsonify({"error": "Token no proporcionado"}), 401
 
         # Decodificar el token
-        decoded_token = jwt.decode(token.split("Bearer ")[1], SECRET_KEY, algorithms=["HS256"])
-        user_id = decoded_token.get("user_id")
-        print("Token decodificado:", decoded_token)  # Depuración
-
+        idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+        print(str(idinfo))
         # Resto de la lógica...
+        db.session.query(User).\
+        filter(User.uid == idinfo["user_id"]).\
+        update({'password': request.get_json()["new_password"]})
+        db.session.commit()
+
     except Exception as e:
         print(f"Error en el endpoint: {e}")
-        return jsonify({"error": "Error en el servidor", "details": str(e)}), 500
+        response = jsonify({"error": "Error en el servidor", "details": str(e)})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+        return response, 500
 
 
         

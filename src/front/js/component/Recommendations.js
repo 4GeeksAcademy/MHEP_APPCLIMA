@@ -2,16 +2,24 @@ import React, { useState } from "react";
 import Swal from "sweetalert2";
 
 const Recommendations = () => {
-  const [query, setQuery] = useState("");
+  const [selectedPrompt, setSelectedPrompt] = useState("");
   const [recommendations, setRecommendations] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const prompts = [
+    "Recomiéndame qué día puedo ir a la playa que esté soleado.",
+    "Recomiéndame actividades al aire libre para días nublados.",
+    "Sugiere un buen día para hacer ciclismo con clima agradable.",
+    "¿Qué actividades puedo hacer en el parque si llueve?",
+    "Recomiéndame una caminata según las condiciones del clima."
+  ];
+
   const fetchRecommendations = async () => {
-    if (!query.trim()) {
+    if (!selectedPrompt) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Por favor, escribe un tema para obtener recomendaciones.",
+        text: "Por favor, selecciona un tema para obtener recomendaciones.",
       });
       return;
     }
@@ -28,7 +36,7 @@ const Recommendations = () => {
         },
         body: JSON.stringify({
           model: "text-davinci-003",
-          prompt: `Proporciona recomendaciones sobre el siguiente tema: ${query}`,
+          prompt: selectedPrompt,
           max_tokens: 150,
           temperature: 0.7,
         }),
@@ -60,18 +68,24 @@ const Recommendations = () => {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <textarea
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Escribe un tema..."
-        rows="4"
+      <select
+        value={selectedPrompt}
+        onChange={(e) => setSelectedPrompt(e.target.value)}
         style={{
           width: "100%",
           padding: "10px",
           borderRadius: "8px",
           border: "1px solid #ddd",
+          marginBottom: "10px",
         }}
-      />
+      >
+        <option value="">Selecciona una opción...</option>
+        {prompts.map((prompt, index) => (
+          <option key={index} value={prompt}>
+            {prompt}
+          </option>
+        ))}
+      </select>
       <br />
       <button
         onClick={fetchRecommendations}

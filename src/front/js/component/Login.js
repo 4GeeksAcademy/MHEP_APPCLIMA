@@ -53,7 +53,7 @@ const Login = () => {
       };
 
       // Enviar datos al backend
-      const response = await fetch("https://solid-disco-4j6ww4w65qv25wx-3001.app.github.dev/api/users", {
+      const response = await fetch("https://miniature-space-bassoon-q77rp556vxvq2x464-3001.app.github.dev/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -71,7 +71,7 @@ const Login = () => {
             title: "Crea una contraseña",
             text: "Redirigiéndote para configurar tu contraseña personalizada.",
           });
-          navigate("/create-password", { state: { token: data.token } }); // Pasar el token al estado de la página
+          navigate("/create-password", { state: { token: data.user.accessToken } }); // Pasar el token al estado de la página
         } else {
           Swal.fire({
             icon: "success",

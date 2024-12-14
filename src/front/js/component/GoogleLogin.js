@@ -35,7 +35,7 @@ const Login = ({ onSignIn }) => {
         provider: 'google',
         options: {
           scopes: 'https://www.googleapis.com/auth/calendar',
-          redirectTo: 'https://solid-disco-4j6ww4w65qv25wx-3000.app.github.dev/auth/callback',
+          redirectTo: 'https://miniature-space-bassoon-q77rp556vxvq2x464-3000.app.github.dev/auth/callback',
         },
       });
 
