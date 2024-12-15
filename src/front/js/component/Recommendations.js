@@ -7,11 +7,11 @@ const Recommendations = () => {
   const [loading, setLoading] = useState(false);
 
   const prompts = [
-    "Recomiéndame qué día puedo ir a la playa que esté soleado.",
+    "Recomiéndame actividades para hacer en dias soleados",
     "Recomiéndame actividades al aire libre para días nublados.",
     "Sugiere un buen día para hacer ciclismo con clima agradable.",
     "¿Qué actividades puedo hacer en el parque si llueve?",
-    "Recomiéndame una caminata según las condiciones del clima."
+    
   ];
 
   const fetchRecommendations = async () => {
@@ -23,26 +23,39 @@ const Recommendations = () => {
       });
       return;
     }
-  
+
     setLoading(true);
     setRecommendations("");
-  
+
+    console.log(selectedPrompt)
+
     try {
-      const response = await fetch("https://psychic-palm-tree-g4497vv6xwpp2vv5r-3001.app.github.dev/api/recommendations", { // Cambia a la URL de tu backend
+      // Llamada directa a OpenAI API
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
         },
-        body: JSON.stringify({ prompt: selectedPrompt }),
+
+        body: JSON.stringify({
+          "messages": [{ "role": "system", "content": "tu eres un asistente para recomandar actividades " },
+          { "role": "user", "content": selectedPrompt }],
+          "model": "gpt-4o"
+        }
+
+        ),
       });
-  
+
       if (!response.ok) {
-        throw new Error("Error al comunicarse con el backend.");
+        throw new Error("Error al comunicarse con la API de OpenAI.");
       }
-  
+
       const data = await response.json();
-      setRecommendations(data.response);
-  
+
+      // Mostrar la respuesta generada por el modelo
+      setRecommendations(data.choices[0].message.content);
+
       Swal.fire({
         icon: "success",
         title: "Recomendaciones obtenidas",
@@ -59,7 +72,6 @@ const Recommendations = () => {
       setLoading(false);
     }
   };
-  
 
   return (
     <div style={{ textAlign: "center" }}>
@@ -108,7 +120,7 @@ const Recommendations = () => {
           border: "1px solid #ddd",
         }}
       >
-        {recommendations}
+        {recommendations || "No hay recomendaciones aún."}
       </div>
     </div>
   );

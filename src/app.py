@@ -161,33 +161,33 @@ def create_password():
 
 
 
-@app.route("/api/recommendations", methods=["POST"])
-def get_recommendations():
-    try:
-        # Leer el prompt desde el frontend
-        data = request.json
-        user_prompt = data.get("prompt")
+# @app.route("/api/recommendations", methods=["POST"])
+# def get_recommendations():
+#     try:
+#         # Leer el prompt desde el frontend
+#         data = request.json
+#         user_prompt = data.get("prompt")
 
-        if not user_prompt:
-            return jsonify({"error": "Prompt no proporcionado"}), 400
+#         if not user_prompt:
+#             return jsonify({"error": "Prompt no proporcionado"}), 400
 
-        # Llamar a la API de OpenAI
-        response = openai.ChatCompletion.create(
-            model="gpt-4",  # Modelo de OpenAI
-            messages=[
-                {"role": "system", "content": "Eres un asistente del clima que recomienda actividades según las condiciones del clima."},
-                {"role": "user", "content": user_prompt}
-            ],
+#         # Llamar a la API de OpenAI
+#         response = openai.ChatCompletion.create(
+#             model="gpt-4",  # Modelo de OpenAI
+#             messages=[
+#                 {"role": "system", "content": "Eres un asistente del clima que recomienda actividades según las condiciones del clima."},
+#                 {"role": "user", "content": user_prompt}
+#             ],
            
-        )
+#         )
 
-        # Respuesta del modelo
-        assistant_response = response["choices"][0]["message"]["content"]
-        return jsonify({"response": assistant_response}), 200
+#         # Respuesta del modelo
+#         assistant_response = response["choices"][0]["message"]["content"]
+#         return jsonify({"response": assistant_response}), 200
 
-    except Exception as e:
-        print("Error:", e)
-        return jsonify({"error": "Error al generar recomendaciones"}), 500
+#     except Exception as e:
+#         print("Error:", e)
+#         return jsonify({"error": "Error al generar recomendaciones"}), 500
 
         
        
