@@ -35,7 +35,7 @@ const Login = ({ onSignIn }) => {
         provider: 'google',
         options: {
           scopes: 'https://www.googleapis.com/auth/calendar',
-          redirectTo: 'https://ideal-winner-977vjggw6gx5h7jq5-3000.app.github.dev/auth/callback',
+          redirectTo: 'https://psychic-palm-tree-g4497vv6xwpp2vv5r-3000.app.github.dev/auth/callback',
         },
       });
 

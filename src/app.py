@@ -1,23 +1,38 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+import json
 import os
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
+from flask_cors import CORS
 from api.utils import APIException, generate_sitemap
 from api.models import db
-from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
+from api.models import db, User
+from datetime import datetime, timedelta
+import psycopg2
+import bcrypt
+import jwt
+from google.oauth2 import id_token
+from google.auth.transport import requests
+import base64
+import openai
 
 # from models import Person
+
+CLIENT_ID="app-de-clima-cd5ef"
+openai.api_key = ""
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../public/')
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+
+
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
@@ -38,16 +53,16 @@ setup_admin(app)
 setup_commands(app)
 
 # Add all endpoints form the API with a "api" prefix
-app.register_blueprint(api, url_prefix='/api')
+# app.register_blueprint(api, url_prefix='/api')
 
 # Handle/serialize errors like a JSON object
 
 
-@app.errorhandler(APIException)
-def handle_invalid_usage(error):
-    return jsonify(error.to_dict()), error.status_code
+# @app.errorhandler(APIException)
+# def handle_invalid_usage(error):
+#     return jsonify(error.to_dict()), error.status_code
 
-# generate sitemap with all your endpoints
+# # generate sitemap with all your endpoints
 
 
 @app.route('/')
@@ -56,17 +71,130 @@ def sitemap():
         return generate_sitemap(app)
     return send_from_directory(static_file_dir, 'index.html')
 
-# any other endpoint will try to serve it like a static file
-@app.route('/<path:path>', methods=['GET'])
-def serve_any_other_file(path):
-    if not os.path.isfile(os.path.join(static_file_dir, path)):
-        path = 'index.html'
-    response = send_from_directory(static_file_dir, path)
-    response.cache_control.max_age = 0  # avoid cache memory
-    return response
+@app.route('/api/users', methods=['GET', 'POST', 'OPTIONS'])
+def manage_users():
+    if request.method == 'OPTIONS':
+        # Responder a preflight requests
+        response = jsonify({"message": "Preflight request received"})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+        print("entro")
+        return response, 200
+
+    if request.method == 'GET':
+        # Obtener todos los usuarios
+        users = User.query.all()
+        return jsonify([user.serialize() for user in users]), 200
+
+    if request.method == 'POST':
+        data = request.get_json()
+
+        # Validar campos obligatorios
+        required_fields = ['uid', 'email', 'emailVerified', 'password', 'isActive', 'displayName', 'accessToken']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"El campo '{field}' es obligatorio."}), 400
+
+        # Validación de datos desde Firebase
+        try:
+            user = User(
+                uid=data['uid'][:256],
+                email=data['email'][:120],
+                email_verified=data['emailVerified'],
+                password=data['password'],
+                is_active=data['isActive'],
+                display_name=data['displayName'][:255],
+                access_token=data['accessToken'][:1000]
+            )
+            db.session.add(user)
+            db.session.commit()
+            response=jsonify({"message": "Usuario creado exitosamente", "user": user.serialize()})
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+            response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+            return response, 201
+        except psycopg2.errors.StringDataRightTruncation as e:
+            db.session.rollback()
+            return jsonify({"error": "Datos demasiado largos para algunos campos", "details": str(e)}), 400
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": "Error al crear el usuario", "details": str(e)}), 500
+
+@app.route('/api/create-password', methods=['POST', 'OPTIONS'])
+def create_password():
+    response = jsonify()
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+    response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+    if request.method == 'OPTIONS':
+        return response, 200
+
+    try:
+        bearer,token = request.headers.get("Authorization").split()
+        print("/" + token + "/")  # Depuración
+
+        if not token:
+            return jsonify({"error": "Token no proporcionado"}), 401
+
+        header, payload, _ = token.split(".")
+        payload = json.loads(base64.b64decode(payload+"="))
+        # Decodificar el token
+        # idinfo = auth.verify_id_token(token)
+        # print(str(idinfo))
+        # Resto de la lógica...
+        body = request.get_json()
+        db.session.query(User).\
+        filter(User.uid == payload["user_id"]).\
+        update({'password': body["new_password"]})
+        db.session.commit()
+        return response, 200
+
+    except Exception as e:
+        print(f"Error en el endpoint: {e}")
+        response = jsonify({"error": "Error en el servidor", "details": str(e)})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+        return response, 500
 
 
-# this only runs if `$ python src/main.py` is executed
-if __name__ == '__main__':
+
+
+# @app.route("/api/recommendations", methods=["POST"])
+# def get_recommendations():
+#     try:
+#         # Leer el prompt desde el frontend
+#         data = request.json
+#         user_prompt = data.get("prompt")
+
+#         if not user_prompt:
+#             return jsonify({"error": "Prompt no proporcionado"}), 400
+
+#         # Llamar a la API de OpenAI
+#         response = openai.ChatCompletion.create(
+#             model="gpt-4",  # Modelo de OpenAI
+#             messages=[
+#                 {"role": "system", "content": "Eres un asistente del clima que recomienda actividades según las condiciones del clima."},
+#                 {"role": "user", "content": user_prompt}
+#             ],
+           
+#         )
+
+#         # Respuesta del modelo
+#         assistant_response = response["choices"][0]["message"]["content"]
+#         return jsonify({"response": assistant_response}), 200
+
+#     except Exception as e:
+#         print("Error:", e)
+#         return jsonify({"error": "Error al generar recomendaciones"}), 500
+
+        
+       
+
+
+
+# this only runs if $ python src/main.py is executed
+if __name__ == '_main_':
     PORT = int(os.environ.get('PORT', 3001))
-    app.run(host='0.0.0.0', port=PORT, debug=True)
+    app.run(host='0.0.0.0', port=PORT,debug=True)

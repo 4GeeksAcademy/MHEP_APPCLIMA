@@ -2,16 +2,24 @@ import React, { useState } from "react";
 import Swal from "sweetalert2";
 
 const Recommendations = () => {
-  const [query, setQuery] = useState("");
+  const [selectedPrompt, setSelectedPrompt] = useState("");
   const [recommendations, setRecommendations] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const prompts = [
+    "Recomiéndame actividades para hacer en dias soleados",
+    "Recomiéndame actividades al aire libre para días nublados.",
+    "Sugiere un buen día para hacer ciclismo con clima agradable.",
+    "¿Qué actividades puedo hacer en el parque si llueve?",
+    
+  ];
+
   const fetchRecommendations = async () => {
-    if (!query.trim()) {
+    if (!selectedPrompt) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Por favor, escribe un tema para obtener recomendaciones.",
+        text: "Por favor, selecciona un tema para obtener recomendaciones.",
       });
       return;
     }
@@ -19,19 +27,24 @@ const Recommendations = () => {
     setLoading(true);
     setRecommendations("");
 
+    console.log(selectedPrompt)
+
     try {
-      const response = await fetch("https://api.openai.com/v1/completions", {
+      // Llamada directa a OpenAI API
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
         },
+
         body: JSON.stringify({
-          model: "text-davinci-003",
-          prompt: `Proporciona recomendaciones sobre el siguiente tema: ${query}`,
-          max_tokens: 150,
-          temperature: 0.7,
-        }),
+          "messages": [{ "role": "system", "content": "tu eres un asistente para recomandar actividades " },
+          { "role": "user", "content": selectedPrompt }],
+          "model": "gpt-4o"
+        }
+
+        ),
       });
 
       if (!response.ok) {
@@ -39,7 +52,9 @@ const Recommendations = () => {
       }
 
       const data = await response.json();
-      setRecommendations(data.choices[0].text.trim());
+
+      // Mostrar la respuesta generada por el modelo
+      setRecommendations(data.choices[0].message.content);
 
       Swal.fire({
         icon: "success",
@@ -60,18 +75,24 @@ const Recommendations = () => {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <textarea
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Escribe un tema..."
-        rows="4"
+      <select
+        value={selectedPrompt}
+        onChange={(e) => setSelectedPrompt(e.target.value)}
         style={{
           width: "100%",
           padding: "10px",
           borderRadius: "8px",
           border: "1px solid #ddd",
+          marginBottom: "10px",
         }}
-      />
+      >
+        <option value="">Selecciona una opción...</option>
+        {prompts.map((prompt, index) => (
+          <option key={index} value={prompt}>
+            {prompt}
+          </option>
+        ))}
+      </select>
       <br />
       <button
         onClick={fetchRecommendations}
@@ -99,7 +120,7 @@ const Recommendations = () => {
           border: "1px solid #ddd",
         }}
       >
-        {recommendations}
+        {recommendations || "No hay recomendaciones aún."}
       </div>
     </div>
   );
