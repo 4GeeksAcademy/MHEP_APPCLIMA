@@ -9,7 +9,6 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from api.utils import APIException, generate_sitemap
 from api.models import db
-from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from api.models import db, User
@@ -20,10 +19,12 @@ import jwt
 from google.oauth2 import id_token
 from google.auth.transport import requests
 import base64
+import openai
 
 # from models import Person
 
 CLIENT_ID="app-de-clima-cd5ef"
+openai.api_key = ""
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
@@ -52,7 +53,7 @@ setup_admin(app)
 setup_commands(app)
 
 # Add all endpoints form the API with a "api" prefix
-app.register_blueprint(api, url_prefix='/api')
+# app.register_blueprint(api, url_prefix='/api')
 
 # Handle/serialize errors like a JSON object
 
@@ -158,17 +159,39 @@ def create_password():
         return response, 500
 
 
+
+
+@app.route("/api/recommendations", methods=["POST"])
+def get_recommendations():
+    try:
+        # Leer el prompt desde el frontend
+        data = request.json
+        user_prompt = data.get("prompt")
+
+        if not user_prompt:
+            return jsonify({"error": "Prompt no proporcionado"}), 400
+
+        # Llamar a la API de OpenAI
+        response = openai.ChatCompletion.create(
+            model="gpt-4",  # Modelo de OpenAI
+            messages=[
+                {"role": "system", "content": "Eres un asistente del clima que recomienda actividades según las condiciones del clima."},
+                {"role": "user", "content": user_prompt}
+            ],
+           
+        )
+
+        # Respuesta del modelo
+        assistant_response = response["choices"][0]["message"]["content"]
+        return jsonify({"response": assistant_response}), 200
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": "Error al generar recomendaciones"}), 500
+
         
        
 
-# any other endpoint will try to serve it like a static file
-# @app.route('/<path:path>', methods=['GET'])
-# def serve_any_other_file(path):
-#     if not os.path.isfile(os.path.join(static_file_dir, path)):
-#         path = 'index.html'
-#     response = send_from_directory(static_file_dir, path)
-#     response.cache_control.max_age = 0  # avoid cache memory
-#     return response
 
 
 # this only runs if $ python src/main.py is executed

@@ -23,32 +23,26 @@ const Recommendations = () => {
       });
       return;
     }
-
+  
     setLoading(true);
     setRecommendations("");
-
+  
     try {
-      const response = await fetch("https://api.openai.com/v1/completions", {
+      const response = await fetch("https://psychic-palm-tree-g4497vv6xwpp2vv5r-3001.app.github.dev/api/recommendations", { // Cambia a la URL de tu backend
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
         },
-        body: JSON.stringify({
-          model: "text-davinci-003",
-          prompt: selectedPrompt,
-          max_tokens: 150,
-          temperature: 0.7,
-        }),
+        body: JSON.stringify({ prompt: selectedPrompt }),
       });
-
+  
       if (!response.ok) {
-        throw new Error("Error al comunicarse con la API de OpenAI.");
+        throw new Error("Error al comunicarse con el backend.");
       }
-
+  
       const data = await response.json();
-      setRecommendations(data.choices[0].text.trim());
-
+      setRecommendations(data.response);
+  
       Swal.fire({
         icon: "success",
         title: "Recomendaciones obtenidas",
@@ -65,6 +59,7 @@ const Recommendations = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <div style={{ textAlign: "center" }}>

@@ -1,21 +1,28 @@
-from flask import Flask, request, jsonify, Blueprint
-from api.models import db, User
-from api.utils import APIException
-from flask_cors import CORS
-import psycopg2
+# from flask import Flask, request, jsonify, Blueprint
+# from api.models import db, User
+# from api.utils import APIException
+# from openai import OpenAI
 
-api = Blueprint('api', __name__)
+# key = ""
 
-# Configuración de CORS
-CORS(api, resources={r"/api/*": {"origins": "*"}})
+# cliente = OpenAI(api_key = key)
 
-@api.after_request
-def after_request(response):
-    # Headers para CORS
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
-    response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
-    return response
+
+# messages = [
+#     {"role": "system", "content": "Eres un asistente del clima que recomienda actividades segun las condiciones del mismo"}
+# ]
+
+# user_input = input ("usuario: ")
+# messages.append({"role": "user", "content": user_input})
+
+# completion = cliente.chat.completions.create(
+#     model="gpt-4o-mini",
+#     messages=messages
+# )
+# print(completion)
+# assistant_response = completion.choices[0].message.content
+# print(f"Assistant: {assistant_response}")
+
 
 # @api.route('/api/users', methods=['GET', 'POST', 'OPTIONS'])
 # def manage_users():
