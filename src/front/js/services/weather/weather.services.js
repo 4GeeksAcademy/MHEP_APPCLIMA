@@ -1,4 +1,4 @@
-const OPENWEATHER_API_KEY = process.env.REACT_APP_OPENWEATHER_API_KEY;
+const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
 
 if (!OPENWEATHER_API_KEY) {
   console.error(

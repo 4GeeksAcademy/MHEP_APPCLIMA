@@ -35,7 +35,7 @@ const Login = ({ onSignIn }) => {
         provider: 'google',
         options: {
           scopes: 'https://www.googleapis.com/auth/calendar',
-          redirectTo: 'https://fluffy-journey-vgvrqw54x6pcx775-3000.app.github.dev/auth/callback',
+          redirectTo: 'https://glorious-zebra-q9q4p6xrrx9cxvp6-3000.app.github.dev/auth/callback',
         },
       });
 
