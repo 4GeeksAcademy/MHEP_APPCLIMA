@@ -1,4 +1,4 @@
-const OPENWEATHER_API_KEY = '9c1833daf4a4957a83ea1c35869c4efa';
+const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
 
 if (!OPENWEATHER_API_KEY) {
   console.error(
