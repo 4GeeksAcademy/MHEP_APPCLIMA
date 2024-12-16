@@ -13,10 +13,10 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 // Configuración de Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyApjxCBvwLVsW8B6WFLsgJ3AxCoMEM8--I",
-  authDomain: "app-de-clima-cd5ef.firebaseapp.com",
-  projectId: "app-de-clima-cd5ef",
-  storageBucket: "app-de-clima-cd5ef.appspot.com",
+  apiKey: "AIzaSyB6pmJG26BPnGNAPxdmsnHYn-9zcYINsh8",
+  authDomain: "appclima-a1c81.firebaseapp.com",
+  projectId: "appclima-a1c81",
+  storageBucket: "appclima-a1c81.appspot.com",
   messagingSenderId: "157882657628",
   appId: "1:157882657628:web:3a8df06718e466630eef99",
   measurementId: "G-TRHDBC0V03",
@@ -53,7 +53,7 @@ const Login = () => {
       };
 
       // Enviar datos al backend
-      const response = await fetch("https://psychic-palm-tree-g4497vv6xwpp2vv5r-3001.app.github.dev/api/users", {
+      const response = await fetch("https://glorious-zebra-q9q4p6xrrx9cxvp6-3001.app.github.dev/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -131,42 +131,42 @@ const Login = () => {
     <div className="container-fluid">
       <div className="row justify-content-center">
         <div className="col-lg-4 col-md-6 col-sm-8 col-xs-12"></div>
-          <div className="fondo">
-            <div className="form-container">
-              <h2>🌦️ WeatherPRO </h2>
-              <h3>Iniciar Sesión</h3>
+        <div className="fondo">
+          <div className="form-container">
+            <h2>🌦️ WeatherPRO </h2>
+            <h3>Iniciar Sesión</h3>
 
-        <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="Correo Electrónico"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit">Iniciar Sesión</button>
-        </form>
+            <form onSubmit={handleLogin}>
+              <input
+                type="email"
+                placeholder="Correo Electrónico"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button type="submit">Iniciar Sesión</button>
+            </form>
 
-        <div className="google-login" onClick={handleGoogleLogin}>
-          <i className="fab fa-google"></i>
-          Login con Google
-        </div>
+            <div className="google-login" onClick={handleGoogleLogin}>
+              <i className="fab fa-google"></i>
+              Login con Google
+            </div>
 
-          <button onClick={handleRegisterRedirect} style={{ backgroundColor: "#28a745" }}>
-          Registrarse
-          </button>
+            <button onClick={handleRegisterRedirect} style={{ backgroundColor: "#28a745" }}>
+              Registrarse
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  
+
   );
 };
 

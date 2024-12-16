@@ -27,9 +27,11 @@ const googleLogoStyle = {
 const Login = ({ onSignIn }) => {
   const supabase = useSupabaseClient();
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   async function googleSignIn() {
     setIsLoading(true); // Inicia el indicador de carga
+    setErrorMessage(''); // Limpiar el mensaje de error anterior
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -46,7 +48,7 @@ const Login = ({ onSignIn }) => {
       // Llamar a la función de éxito proporcionada como prop
       onSignIn();
     } catch (error) {
-      alert(error.message || "Ocurrió un error inesperado durante el inicio de sesión.");
+      setErrorMessage(error.message || "Ocurrió un error inesperado durante el inicio de sesión.");
       console.error(error);
     } finally {
       setIsLoading(false); // Detener el indicador de carga
@@ -54,7 +56,7 @@ const Login = ({ onSignIn }) => {
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px' }}>
       <button style={buttonStyle} onClick={googleSignIn} disabled={isLoading}>
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
@@ -63,6 +65,7 @@ const Login = ({ onSignIn }) => {
         />
         {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión con Google'}
       </button>
+      {errorMessage && <p style={{ color: 'red', marginTop: '10px' }}>{errorMessage}</p>}
     </div>
   );
 };
