@@ -26,7 +26,7 @@ const CreatePassword = () => {
         console.log("Token enviado:", token);
 
         try {
-            const response = await fetch("https://psychic-palm-tree-g4497vv6xwpp2vv5r-3001.app.github.dev/api/create-password", {
+            const response = await fetch("https://musical-disco-jjj6qpp9rwx6hq57p-3001.app.github.dev/api/create-password", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

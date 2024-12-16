@@ -16,18 +16,18 @@ const LandingPage = () => {
         {/* Left Content Section */}
         <div className="lg:w-1/2 text-center lg:text-left mb-12 lg:mb-0">
           <h1 className="text-5xl font-bold mb-6 leading-tight">
-          🌦️ WeatherPRO <br></br>
-          <br></br>
-          Planifica tu dia Inteligentemente
-          
-          
+            🌦️ WeatherPRO <br></br>
+            <br></br>
+            Planifica tu dia Inteligentemente
+
+
 
 
           </h1>
           <p className="text-xl mb-8 text-white/90">
             Sincroniza tus actividades con el clima. Programa tus eventos de Google Calendar basándote en predicciones meteorológicas precisas.
           </p>
-          
+
           {/* Features Highlights */}
           <div className="grid grid-cols-2 gap-4 mb-8">
             <div className="flex items-center space-x-3">
@@ -49,7 +49,7 @@ const LandingPage = () => {
           </div>
 
           <div className="flex space-x-4 justify-center lg:justify-start">
-            <button 
+            <button
               onClick={handleLoginRedirect}
               className="bg-white text-sky-600 px-8 py-3 rounded-full font-bold hover:bg-sky-100 transition duration-300 shadow-lg"
             >
@@ -59,18 +59,7 @@ const LandingPage = () => {
         </div>
 
         {/* Right Image/Mockup Section */}
-        <div className="lg:w-1/2 flex justify-center lg:justify-end">
-          <div className="relative lg:mt-0 mt-12">
-            <h2 className="max-w-md text-center mx-auto">🌦️ WeatherPro App Interface</h2>
-            <div className="absolute bottom-4 left-4 right-4 bg-white/90 rounded-xl px-4 py-3 text-sky-600 text-center">
-              <p className="font-bold mb-2">Próxima Actividad</p>
-              <div className="flex justify-between items-center">
-                <span>Ciclismo</span>
-                <span className="text-sm text-gray-500">Soleado, 25°C</span>
-              </div>
-            </div>
-          </div>
-        </div>
+
       </div>
 
       {/* Background Weather Elements */}
