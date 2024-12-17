@@ -53,7 +53,7 @@ const Login = () => {
       };
 
       // Enviar datos al backend
-      const response = await fetch("https://musical-disco-jjj6qpp9rwx6hq57p-3001.app.github.dev/api/users", {
+      const response = await fetch("https://mhep-appclima2.onrender.com/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -131,42 +131,42 @@ const Login = () => {
     <div className="container-fluid">
       <div className="row justify-content-center">
         <div className="col-lg-4 col-md-6 col-sm-8 col-xs-12"></div>
-          <div className="fondo">
-            <div className="form-container">
-              <h2>🌦️ WeatherPRO </h2>
-              <h3>Iniciar Sesión</h3>
+        <div className="fondo">
+          <div className="form-container">
+            <h2>🌦️ WeatherPRO </h2>
+            <h3>Iniciar Sesión</h3>
 
-        <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="Correo Electrónico"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit">Iniciar Sesión</button>
-        </form>
+            <form onSubmit={handleLogin}>
+              <input
+                type="email"
+                placeholder="Correo Electrónico"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button type="submit">Iniciar Sesión</button>
+            </form>
 
-        <div className="google-login" onClick={handleGoogleLogin}>
-          <i className="fab fa-google"></i>
-          Login con Google
-        </div>
+            <div className="google-login" onClick={handleGoogleLogin}>
+              <i className="fab fa-google"></i>
+              Login con Google
+            </div>
 
-          <button onClick={handleRegisterRedirect} style={{ backgroundColor: "#28a745" }}>
-          Registrarse
-          </button>
+            <button onClick={handleRegisterRedirect} style={{ backgroundColor: "#28a745" }}>
+              Registrarse
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  
+
   );
 };
 

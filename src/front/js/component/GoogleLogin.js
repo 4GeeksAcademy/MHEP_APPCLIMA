@@ -35,8 +35,7 @@ const Login = ({ onSignIn }) => {
         provider: 'google',
         options: {
           scopes: 'https://www.googleapis.com/auth/calendar',
-          redirectTo: 'https://glorious-zebra-q9q4p6xrrx9cxvp6-3000.app.github.dev/auth/callback',
-          redirectTo: 'https://musical-disco-jjj6qpp9rwx6hq57p-3000.app.github.dev/auth/callback',
+          redirectTo: 'https://mhep-appclima.onrender.com/',
         },
       });
 
